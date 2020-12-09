@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    cattle.io/creator: norman
+    workload.user.cattle.io/workloadselector: deployment-test-tools-bm-test-api
+  name: bm-test-api
+  namespace: test-tools
+spec:
+  selector:
+    matchLabels:
+      workload.user.cattle.io/workloadselector: deployment-test-tools-bm-test-api
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        workload.user.cattle.io/workloadselector: deployment-test-tools-bm-test-api
+      annotations:
+        cattle.io/timestamp: "2020-11-13T07:09:41Z"
+        field.cattle.io/ports: '[[{"containerPort":8060,"dnsName":"bm-test-api-nodeport","hostPort":0,"kind":"NodePort","name":"api8060","protocol":"TCP","sourcePort":0}]]'
+    spec:
+      containers:
+      - env:
+        image: harbor.bluemoon.com.cn/lw/bmtestapi:${CICD_GIT_COMMIT}
+        imagePullPolicy: Always
+        name: bm-test-api
+        ports:
+        - containerPort: 8060
+          name: api8060
+          protocol: TCP
+        resources: {}
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: harbor
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
+
